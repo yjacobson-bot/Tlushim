@@ -318,6 +318,12 @@ const fmtD=iso=>{
 };
 
 // ── seed data ──────────────────────────────────────────────────────────
+const SEED_PAY_METHODS=[
+  {id:'pm1',name:'מזומן',emoji:'💵'},
+  {id:'pm2',name:'צ׳ק',emoji:'📝'},
+  {id:'pm3',name:'העברה',emoji:'📲'},
+];
+
 const SEED_STORES=[
   {id:'s1',name:'מאפיה',emoji:'🥐',color:'#c0392b'},
   {id:'s2',name:'מכולת',emoji:'🛒',color:'#27ae60'},
@@ -363,7 +369,7 @@ function Modal({title,onClose,children}){
 }
 
 // ── PurchaseModal ──────────────────────────────────────────────────────
-function PurchaseModal({store,products,initial,onSave,onClose}){
+function PurchaseModal({store,products,payMethods,initial,onSave,onClose}){
   const[f,setF]=useState({
     studentName:initial?.studentName??'',
     cls:initial?.cls??'',
@@ -372,6 +378,7 @@ function PurchaseModal({store,products,initial,onSave,onClose}){
     qty:initial?.qty??1,
     paid:initial?.paid??false,
     paidAmt:initial?.paidAmt??0,
+    payMethodId:initial?.payMethodId??(payMethods[0]?.id??''),
     notes:initial?.notes??'',
   });
   const s=(k,v)=>setF(p=>({...p,[k]:v}));
@@ -425,6 +432,14 @@ function PurchaseModal({store,products,initial,onSave,onClose}){
           <span>שולם במלואו</span>
         </label>
       </div>
+      {f.paid&&payMethods.length>0&&(
+        <div className="fg">
+          <label className="fl">אמצעי תשלום</label>
+          <select className="fs" value={f.payMethodId} onChange={e=>s('payMethodId',e.target.value)}>
+            {payMethods.map(m=><option key={m.id} value={m.id}>{m.emoji} {m.name}</option>)}
+          </select>
+        </div>
+      )}
       {!f.paid&&(
         <div className="fg">
           <label className="fl">סכום ששולם (חלקי)</label>
@@ -446,10 +461,11 @@ function PurchaseModal({store,products,initial,onSave,onClose}){
 }
 
 // ── MarkPaidModal ──────────────────────────────────────────────────────
-function MarkPaidModal({pur,onSave,onClose}){
+function MarkPaidModal({pur,payMethods,onSave,onClose}){
   const rem=pur.total-pur.paidAmt;
   const[partial,setPartial]=useState(false);
   const[amt,setAmt]=useState(rem);
+  const[payMethodId,setPayMethodId]=useState(payMethods[0]?.id??'');
   return(
     <Modal title="סימון תשלום" onClose={onClose}>
       <div style={{background:'var(--sf2)',borderRadius:'var(--rs)',padding:'10px 12px',marginBottom:12}}>
@@ -470,8 +486,16 @@ function MarkPaidModal({pur,onSave,onClose}){
           <input className="fi" type="number" min={0} max={rem} value={amt} onChange={e=>setAmt(Number(e.target.value))} dir="ltr"/>
         </div>
       )}
+      {payMethods.length>0&&(
+        <div className="fg">
+          <label className="fl">אמצעי תשלום</label>
+          <select className="fs" value={payMethodId} onChange={e=>setPayMethodId(e.target.value)}>
+            {payMethods.map(m=><option key={m.id} value={m.id}>{m.emoji} {m.name}</option>)}
+          </select>
+        </div>
+      )}
       <div style={{display:'flex',gap:8}}>
-        <button className="btn btn-ok" style={{flex:1}} onClick={()=>onSave(partial?pur.paidAmt+Number(amt):pur.total)}>
+        <button className="btn btn-ok" style={{flex:1}} onClick={()=>onSave(partial?pur.paidAmt+Number(amt):pur.total,payMethodId)}>
           ✓ אישור תשלום
         </button>
         <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
@@ -481,9 +505,10 @@ function MarkPaidModal({pur,onSave,onClose}){
 }
 
 // ── PaymentModal (payment to store) ──────────────────────────────────
-function PaymentModal({store,onSave,onClose}){
+function PaymentModal({store,payMethods,onSave,onClose}){
   const[amt,setAmt]=useState('');
   const[notes,setNotes]=useState('');
+  const[payMethodId,setPayMethodId]=useState(payMethods[0]?.id??'');
   return(
     <Modal title={`העברת תשלום — ${store?.name??''}`} onClose={onClose}>
       <div className="alert alert-ok" style={{marginBottom:12}}>
@@ -493,13 +518,46 @@ function PaymentModal({store,onSave,onClose}){
         <label className="fl">סכום שהועבר לחנות (₪) *</label>
         <input className="fi" type="number" min={0} step={1} value={amt} onChange={e=>setAmt(e.target.value)} placeholder="0" dir="ltr" autoFocus/>
       </div>
+      {payMethods.length>0&&(
+        <div className="fg">
+          <label className="fl">אמצעי תשלום</label>
+          <select className="fs" value={payMethodId} onChange={e=>setPayMethodId(e.target.value)}>
+            {payMethods.map(m=><option key={m.id} value={m.id}>{m.emoji} {m.name}</option>)}
+          </select>
+        </div>
+      )}
       <div className="fg">
         <label className="fl">הערות</label>
         <textarea className="ft" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="פרטים נוספים..."/>
       </div>
       <div style={{display:'flex',gap:8}}>
-        <button className="btn btn-ok" style={{flex:1}} onClick={()=>{if(amt&&Number(amt)>0)onSave({amount:Number(amt),notes});}} disabled={!amt||Number(amt)<=0}>
+        <button className="btn btn-ok" style={{flex:1}} onClick={()=>{if(amt&&Number(amt)>0)onSave({amount:Number(amt),notes,payMethodId});}} disabled={!amt||Number(amt)<=0}>
           ✓ אשר העברה
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── PayMethodModal ─────────────────────────────────────────────────────
+const PM_EMOJIS=['💵','📝','📲','💳','🏦','💰','🪙','📱','🧾','💸'];
+function PayMethodModal({initial,onSave,onClose}){
+  const[name,setName]=useState(initial?.name??'');
+  const[emoji,setEmoji]=useState(initial?.emoji??'💵');
+  return(
+    <Modal title={initial?'עריכת אמצעי תשלום':'הוספת אמצעי תשלום'} onClose={onClose}>
+      <div className="fg">
+        <label className="fl">שם *</label>
+        <input className="fi" value={name} onChange={e=>setName(e.target.value)} placeholder="מזומן, צ׳ק, העברה..." autoFocus/>
+      </div>
+      <div className="fg">
+        <label className="fl">אייקון</label>
+        <div className="egr">{PM_EMOJIS.map(e=><span key={e} className={`eo${emoji===e?' on':''}`} onClick={()=>setEmoji(e)}>{e}</span>)}</div>
+      </div>
+      <div style={{display:'flex',gap:8,marginTop:4}}>
+        <button className="btn btn-navy" style={{flex:1}} onClick={()=>{if(name.trim())onSave({name:name.trim(),emoji});}} disabled={!name.trim()}>
+          {initial?'שמור':'הוסף'}
         </button>
         <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
       </div>
@@ -613,7 +671,7 @@ function HomeView({stores,purchases,storePayments,onStoreClick}){
 }
 
 // ── PurchaseList (with optional date grouping) ─────────────────────────
-function PurchaseList({items,prodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete}){
+function PurchaseList({items,prodMap,payMethodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete}){
   const dayLabel=iso=>{
     const d=new Date(iso);
     const today=new Date();
@@ -641,6 +699,7 @@ function PurchaseList({items,prodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete
     const partial=!paid&&p.paidAmt>0;
     const rem=p.total-p.paidAmt;
     const prn=prodMap[p.productId]?.name??'?';
+    const pm=p.payMethodId&&payMethodMap?payMethodMap[p.payMethodId]:null;
     const borderColor=paid?'var(--ok)':partial?'var(--warn)':'var(--err)';
     return(
       <div className="pc" style={{borderRightColor:borderColor}}>
@@ -657,7 +716,10 @@ function PurchaseList({items,prodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete
         <div style={{textAlign:'left',minWidth:90}}>
           <div className="pc-amt">{fmt(p.total)}</div>
           {paid
-            ?<span className="bdg bdg-ok">✓ שולם</span>
+            ?<div style={{display:'flex',flexDirection:'column',alignItems:'flex-end',gap:3}}>
+                <span className="bdg bdg-ok">✓ שולם</span>
+                {pm&&<span style={{fontSize:11,color:'var(--fg-m)'}}>{pm.emoji} {pm.name}</span>}
+              </div>
             :partial
               ?<span className="bdg bdg-warn">נותר {fmt(rem)}</span>
               :<span className="bdg bdg-err">לא שולם</span>
@@ -691,7 +753,7 @@ function PurchaseList({items,prodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete
 }
 
 // ── StoreView ──────────────────────────────────────────────────────────
-function StoreView({store,products,purchases,storePayments,onAddPurchase,onEditPurchase,onDeletePurchase,onMarkPaid,onAddPayment}){
+function StoreView({store,products,purchases,storePayments,payMethods,onAddPurchase,onEditPurchase,onDeletePurchase,onMarkPaid,onAddPayment}){
   const[filter,setFilter]=useState('all');
   const[confirm,setConfirm]=useState(null);
   const[markPaid,setMarkPaid]=useState(null);
@@ -702,6 +764,7 @@ function StoreView({store,products,purchases,storePayments,onAddPurchase,onEditP
   const storeDebt=tot-storePaidTotal;
 
   const prodMap=Object.fromEntries(products.map(p=>[p.id,p]));
+  const payMethodMap=Object.fromEntries((payMethods||[]).map(m=>[m.id,m]));
   const isUnpaid=p=>!p.paid||p.paidAmt<p.total;
 
   const shown=purchases.filter(p=>{
@@ -733,7 +796,7 @@ function StoreView({store,products,purchases,storePayments,onAddPurchase,onEditP
       {shown.length===0?(
         <div className="empty"><div className="empty-i">📋</div><div>אין רכישות {filter!=='all'?'בקטגוריה זו':''}</div></div>
       ):(
-        <PurchaseList items={shown} prodMap={prodMap} isUnpaid={isUnpaid} grouped={filter==='all'}
+        <PurchaseList items={shown} prodMap={prodMap} payMethodMap={payMethodMap} isUnpaid={isUnpaid} grouped={filter==='all'}
           onMarkPaid={setMarkPaid} onEdit={onEditPurchase} onDelete={setConfirm}/>
       )}
 
@@ -763,7 +826,7 @@ function StoreView({store,products,purchases,storePayments,onAddPurchase,onEditP
         </Modal>
       )}
       {markPaid&&(
-        <MarkPaidModal pur={markPaid} onSave={amt=>{onMarkPaid(markPaid.id,amt);setMarkPaid(null);}} onClose={()=>setMarkPaid(null)}/>
+        <MarkPaidModal pur={markPaid} payMethods={payMethods||[]} onSave={(amt,pmId)=>{onMarkPaid(markPaid.id,amt,pmId);setMarkPaid(null);}} onClose={()=>setMarkPaid(null)}/>
       )}
     </div>
   );
@@ -823,18 +886,27 @@ function DebtsView({purchases,products,stores}){
 }
 
 // ── AdminView ──────────────────────────────────────────────────────────
-function AdminView({stores,products,storePayments,onAddStore,onEditStore,onDeleteStore,onAddProduct,onEditProduct,onDeleteProduct}){
+function AdminView({stores,products,storePayments,payMethods,payMethodMap,appSettings,onSaveSettings,onAddStore,onEditStore,onDeleteStore,onAddProduct,onEditProduct,onDeleteProduct,onAddPayMethod,onEditPayMethod,onDeletePayMethod}){
   const[tab,setTab]=useState('stores');
   const[confirm,setConfirm]=useState(null);
+  const[settLock,setSettLock]=useState(appSettings.appLock??false);
+  const[settPass,setSettPass]=useState(appSettings.appPass??'');
+  const[settSaved,setSettSaved]=useState(false);
+  const saveSettings=()=>{
+    onSaveSettings({appLock:settLock,appPass:settPass});
+    setSettSaved(true);setTimeout(()=>setSettSaved(false),2000);
+  };
 
   const storeMap=Object.fromEntries(stores.map(s=>[s.id,s]));
 
   return(
     <div>
-      <div className="tabs">
+      <div className="tabs" style={{flexWrap:'wrap'}}>
         <button className={`tab${tab==='stores'?' on':''}`} onClick={()=>setTab('stores')}>חנויות</button>
         <button className={`tab${tab==='products'?' on':''}`} onClick={()=>setTab('products')}>מוצרים</button>
-        <button className={`tab${tab==='payments'?' on':''}`} onClick={()=>setTab('payments')}>היסטוריית תשלומים</button>
+        <button className={`tab${tab==='paymethods'?' on':''}`} onClick={()=>setTab('paymethods')}>תשלום</button>
+        <button className={`tab${tab==='payments'?' on':''}`} onClick={()=>setTab('payments')}>היסטוריה</button>
+        <button className={`tab${tab==='settings'?' on':''}`} onClick={()=>setTab('settings')}>הגדרות</button>
       </div>
 
       {tab==='stores'&&(
@@ -883,16 +955,35 @@ function AdminView({stores,products,storePayments,onAddStore,onEditStore,onDelet
         </>
       )}
 
+      {tab==='paymethods'&&(
+        <>
+          <button className="btn btn-navy" style={{marginBottom:12}} onClick={onAddPayMethod}>＋ הוסף אמצעי תשלום</button>
+          {payMethods.length===0&&<div className="empty"><div className="empty-i">💳</div><div>אין אמצעי תשלום עדיין</div></div>}
+          {payMethods.map(m=>(
+            <div key={m.id} className="li">
+              <div style={{fontSize:'1.5rem'}}>{m.emoji}</div>
+              <div className="li-main"><div className="li-name">{m.name}</div></div>
+              <div className="li-acts">
+                <button className="btn btn-ghost btn-sm" onClick={()=>onEditPayMethod(m)}>עריכה</button>
+                <button className="btn btn-err btn-sm" onClick={()=>setConfirm({type:'paymethod',id:m.id,name:m.name})}>מחק</button>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+
       {tab==='payments'&&(
         <>
           {storePayments.length===0&&<div className="empty"><div className="empty-i">💳</div><div>אין היסטוריית תשלומים</div></div>}
           {storePayments.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(p=>{
             const st=storeMap[p.storeId];
+            const pm=p.payMethodId&&payMethodMap?payMethodMap[p.payMethodId]:null;
             return(
               <div key={p.id} className="ph-row">
                 <div className="ph-info">
                   <div style={{fontWeight:700,marginBottom:1}}>{st?.emoji} {st?.name??'?'}</div>
                   <div className="ph-dt">{fmtD(p.date)}</div>
+                  {pm&&<div className="ph-note">{pm.emoji} {pm.name}</div>}
                   {p.notes&&<div className="ph-note">{p.notes}</div>}
                 </div>
                 <div className="ph-amt">{fmt(p.amount)}</div>
@@ -902,13 +993,44 @@ function AdminView({stores,products,storePayments,onAddStore,onEditStore,onDelet
         </>
       )}
 
+      {tab==='settings'&&(
+        <div>
+          <p className="sh">נעילת אפליקציה</p>
+          <div style={{background:'var(--surface)',borderRadius:'var(--rs)',padding:'14px',boxShadow:'var(--sh)',marginBottom:12}}>
+            <div className="fg">
+              <label className="fc">
+                <input type="checkbox" checked={settLock} onChange={e=>setSettLock(e.target.checked)}/>
+                <span style={{fontWeight:700}}>הפעל נעילת אפליקציה בכניסה</span>
+              </label>
+              <div style={{fontSize:12.5,color:'var(--fg-m)',marginTop:5}}>כאשר מופעל, תידרש סיסמה בכל פתיחת אפליקציה.</div>
+            </div>
+            {settLock&&(
+              <div className="fg">
+                <label className="fl">סיסמת כניסה לאפליקציה</label>
+                <input className="fi" type="password" value={settPass} onChange={e=>setSettPass(e.target.value)} placeholder="הזן סיסמה"/>
+                <div style={{fontSize:12,color:'var(--fg-m)',marginTop:4}}>⚠️ שמור את הסיסמה! אין אפשרות שחזור ידנית.</div>
+              </div>
+            )}
+            <button className="btn btn-navy btn-full" onClick={saveSettings}>
+              {settSaved?'✓ נשמר!':'שמור הגדרות'}
+            </button>
+          </div>
+          <p className="sh" style={{marginTop:16}}>סיסמת פאנל ניהול</p>
+          <div style={{background:'var(--surface)',borderRadius:'var(--rs)',padding:'14px',boxShadow:'var(--sh)',fontSize:13,color:'var(--fg-m)'}}>
+            סיסמת ניהול קבועה: <strong style={{color:'var(--fg)'}}>1981</strong><br/>
+            לשינוי — יש לפנות למפתח.
+          </div>
+        </div>
+      )}
+
       {confirm&&(
         <Modal title="אישור מחיקה" onClose={()=>setConfirm(null)}>
           <p style={{marginTop:0}}>האם למחוק את "{confirm.name}"? פעולה זו תמחק גם את כל הנתונים הקשורים.</p>
           <div style={{display:'flex',gap:8}}>
             <button className="btn btn-err" style={{flex:1}} onClick={()=>{
               if(confirm.type==='store')onDeleteStore(confirm.id);
-              else onDeleteProduct(confirm.id);
+              else if(confirm.type==='product')onDeleteProduct(confirm.id);
+              else if(confirm.type==='paymethod')onDeletePayMethod(confirm.id);
               setConfirm(null);
             }}>מחק</button>
             <button className="btn btn-ghost" onClick={()=>setConfirm(null)}>ביטול</button>
@@ -973,12 +1095,44 @@ const IcoHome=()=><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V21H15v-5h-
 const IcoDebt=()=><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>;
 const IcoAdmin=()=><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zM12 6v6l4 2"/><path d="M4 6h16M4 18h16"/></svg>;
 
+// ── AppLock (full-app optional lock) ──────────────────────────────────
+function AppLock({onUnlock}){
+  const[pass,setPass]=useState('');
+  const[err,setErr]=useState(false);
+  const[shake,setShake]=useState(false);
+  const settings=LS.get('appSettings',{});
+  const tryPass=()=>{
+    if(pass===settings.appPass){onUnlock();}
+    else{setErr(true);setPass('');setShake(true);setTimeout(()=>setShake(false),500);}
+  };
+  return(
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'100vh',gap:20,background:'var(--bg)'}}>
+      <div style={{fontSize:'3.5rem'}}>🔐</div>
+      <div style={{fontWeight:800,fontSize:'1.3rem'}}>תלושים — ניהול ת"ת</div>
+      <div style={{fontSize:14,color:'var(--fg-m)'}}>הזן סיסמה להיכנס</div>
+      <div style={{animation:shake?'shake .4s ease':'none',width:'100%',maxWidth:280}}>
+        <input className="fi" type="password" value={pass}
+          onChange={e=>{setPass(e.target.value);setErr(false);}}
+          onKeyDown={e=>e.key==='Enter'&&tryPass()}
+          placeholder="••••" autoFocus
+          style={{textAlign:'center',fontSize:'1.4rem',letterSpacing:6,borderColor:err?'var(--err)':'var(--br)'}}/>
+        {err&&<div style={{color:'var(--err)',fontSize:13,textAlign:'center',marginTop:5}}>סיסמה שגויה</div>}
+      </div>
+      <button className="btn btn-navy" style={{width:280}} onClick={tryPass}>כניסה</button>
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}`}</style>
+    </div>
+  );
+}
+
 // ── App ────────────────────────────────────────────────────────────────
 function App(){
   const[stores,setStores]=useState(()=>LS.get('stores',SEED_STORES));
   const[products,setProducts]=useState(()=>LS.get('products',SEED_PRODS));
   const[purchases,setPurchases]=useState(()=>LS.get('purchases',SEED_PUR));
   const[storePayments,setStorePayments]=useState(()=>LS.get('storePayments',[]));
+  const[payMethods,setPayMethods]=useState(()=>LS.get('payMethods',SEED_PAY_METHODS));
+  const[appSettings,setAppSettings]=useState(()=>LS.get('appSettings',{appLock:false,appPass:''}));
+  const[appUnlocked,setAppUnlocked]=useState(false);
 
   const[view,setView]=useState('home');
   const[activeStore,setActiveStore]=useState(null);
@@ -990,12 +1144,16 @@ function App(){
   useEffect(()=>LS.set('products',products),[products]);
   useEffect(()=>LS.set('purchases',purchases),[purchases]);
   useEffect(()=>LS.set('storePayments',storePayments),[storePayments]);
+  useEffect(()=>LS.set('payMethods',payMethods),[payMethods]);
+  useEffect(()=>LS.set('appSettings',appSettings),[appSettings]);
+
+  const payMethodMap=Object.fromEntries(payMethods.map(m=>[m.id,m]));
 
   // ── actions ──
   const addPurchase=d=>setPurchases(p=>[{...d,id:uid(),date:new Date().toISOString()},...p]);
   const updPurchase=(id,d)=>setPurchases(p=>p.map(x=>x.id===id?{...x,...d}:x));
   const delPurchase=id=>setPurchases(p=>p.filter(x=>x.id!==id));
-  const markPaid=(id,amt)=>setPurchases(p=>p.map(x=>x.id===id?{...x,paid:amt>=x.total,paidAmt:amt}:x));
+  const markPaid=(id,amt,pmId)=>setPurchases(p=>p.map(x=>x.id===id?{...x,paid:amt>=x.total,paidAmt:amt,payMethodId:pmId??x.payMethodId}:x));
 
   const addStore=d=>setStores(p=>[...p,{...d,id:uid()}]);
   const updStore=(id,d)=>setStores(p=>p.map(x=>x.id===id?{...x,...d}:x));
@@ -1012,6 +1170,10 @@ function App(){
 
   const addStorePayment=d=>setStorePayments(p=>[{...d,id:uid(),date:new Date().toISOString()},...p]);
 
+  const addPayMethod=d=>setPayMethods(p=>[...p,{...d,id:uid()}]);
+  const updPayMethod=(id,d)=>setPayMethods(p=>p.map(x=>x.id===id?{...x,...d}:x));
+  const delPayMethod=id=>setPayMethods(p=>p.filter(x=>x.id!==id));
+
   // ── nav ──
   const goStore=s=>{setActiveStore(s);setView('store');};
   const goHome=()=>{setView('home');setActiveStore(null);setAdminUnlocked(false);};
@@ -1023,10 +1185,13 @@ function App(){
     return s+Math.max(0,tot-paid);
   },0);
 
-  // title per view
   const titles={home:'תלושים — ניהול ת"ת',store:activeStore?`${activeStore.emoji} ${activeStore.name}`:'',debts:'חובות בחורים',admin:'פאנל ניהול'};
-
   const closeModal=()=>{setModal(null);setEditTarget(null);};
+
+  // App-wide lock
+  if(appSettings.appLock&&appSettings.appPass&&!appUnlocked){
+    return <AppLock onUnlock={()=>setAppUnlocked(true)}/>;
+  }
 
   return(
     <div id="root-inner">
@@ -1045,6 +1210,7 @@ function App(){
             products={products.filter(p=>p.storeId===activeStore.id)}
             purchases={purchases.filter(p=>p.storeId===activeStore.id)}
             storePayments={storePayments.filter(p=>p.storeId===activeStore.id)}
+            payMethods={payMethods}
             onAddPurchase={()=>setModal('purchase')}
             onEditPurchase={p=>{setEditTarget(p);setModal('editPurchase');}}
             onDeletePurchase={delPurchase}
@@ -1057,12 +1223,17 @@ function App(){
           adminUnlocked
             ?<AdminView
                 stores={stores} products={products} storePayments={storePayments}
+                payMethods={payMethods} payMethodMap={payMethodMap}
+                appSettings={appSettings} onSaveSettings={s=>setAppSettings(s)}
                 onAddStore={()=>setModal('addStore')}
                 onEditStore={s=>{setEditTarget(s);setModal('editStore');}}
                 onDeleteStore={delStore}
                 onAddProduct={()=>setModal('addProduct')}
                 onEditProduct={p=>{setEditTarget(p);setModal('editProduct');}}
                 onDeleteProduct={delProduct}
+                onAddPayMethod={()=>setModal('addPayMethod')}
+                onEditPayMethod={m=>{setEditTarget(m);setModal('editPayMethod');}}
+                onDeletePayMethod={delPayMethod}
               />
             :<AdminLock onUnlock={()=>setAdminUnlocked(true)} onBack={goHome}/>
         )}
@@ -1083,21 +1254,23 @@ function App(){
 
       {/* Modals */}
       {modal==='purchase'&&activeStore&&(
-        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)}
+        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)} payMethods={payMethods}
           onSave={d=>{addPurchase({...d,storeId:activeStore.id});closeModal();}} onClose={closeModal}/>
       )}
       {modal==='editPurchase'&&editTarget&&activeStore&&(
-        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)}
+        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)} payMethods={payMethods}
           initial={editTarget}
           onSave={d=>{updPurchase(editTarget.id,d);closeModal();}} onClose={closeModal}/>
       )}
       {modal==='payment'&&activeStore&&(
-        <PaymentModal store={activeStore} onSave={d=>{addStorePayment({...d,storeId:activeStore.id});closeModal();}} onClose={closeModal}/>
+        <PaymentModal store={activeStore} payMethods={payMethods} onSave={d=>{addStorePayment({...d,storeId:activeStore.id});closeModal();}} onClose={closeModal}/>
       )}
       {modal==='addStore'&&<StoreModal onSave={d=>{addStore(d);closeModal();}} onClose={closeModal}/>}
       {modal==='editStore'&&editTarget&&<StoreModal initial={editTarget} onSave={d=>{updStore(editTarget.id,d);closeModal();}} onClose={closeModal}/>}
       {modal==='addProduct'&&<ProductModal stores={stores} onSave={d=>{addProduct(d);closeModal();}} onClose={closeModal}/>}
       {modal==='editProduct'&&editTarget&&<ProductModal stores={stores} initial={editTarget} onSave={d=>{updProduct(editTarget.id,d);closeModal();}} onClose={closeModal}/>}
+      {modal==='addPayMethod'&&<PayMethodModal onSave={d=>{addPayMethod(d);closeModal();}} onClose={closeModal}/>}
+      {modal==='editPayMethod'&&editTarget&&<PayMethodModal initial={editTarget} onSave={d=>{updPayMethod(editTarget.id,d);closeModal();}} onClose={closeModal}/>}
     </div>
   );
 }
