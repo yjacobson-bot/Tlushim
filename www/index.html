@@ -1,0 +1,1106 @@
+
+<title>תלושים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap">
+
+<style>
+/* layout: RTL dashboard — sticky topbar + bottom nav, scrollable main */
+:root {
+  --bg: #eeecea;
+  --surface: #ffffff;
+  --sf2: #f6f5f2;
+  --fg: #1b1f28;
+  --fg-m: #707585;
+  --br: #dbd8d0;
+  --navy: #1e3a5f;
+  --navy-l: #e6edf5;
+  --gold: #b8921e;
+  --gold-l: #fdf3dd;
+  --ok: #1b7a48;
+  --ok-l: #e6f5ee;
+  --err: #be3225;
+  --err-l: #fde8e6;
+  --warn: #c07000;
+  --warn-l: #fff4d6;
+  --sh: 0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-l: 0 6px 20px rgba(0,0,0,.1);
+  --r: 14px;
+  --rs: 9px;
+  --topH: 58px;
+  --botH: 62px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101520;
+    --surface: #192035;
+    --sf2: #1e2840;
+    --fg: #e8e5e0;
+    --fg-m: #8b95a8;
+    --br: #2d3a50;
+    --navy: #4e8fd4;
+    --navy-l: #1a2540;
+    --gold: #d4a83a;
+    --gold-l: #2a2010;
+    --ok: #38d98a;
+    --ok-l: #062518;
+    --err: #f07060;
+    --err-l: #3a0e0a;
+    --warn: #f0b040;
+    --warn-l: #2a1800;
+    --sh: 0 1px 4px rgba(0,0,0,.3);
+    --sh-l: 0 6px 20px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101520;
+  --surface: #192035;
+  --sf2: #1e2840;
+  --fg: #e8e5e0;
+  --fg-m: #8b95a8;
+  --br: #2d3a50;
+  --navy: #4e8fd4;
+  --navy-l: #1a2540;
+  --gold: #d4a83a;
+  --gold-l: #2a2010;
+  --ok: #38d98a;
+  --ok-l: #062518;
+  --err: #f07060;
+  --err-l: #3a0e0a;
+  --warn: #f0b040;
+  --warn-l: #2a1800;
+  --sh: 0 1px 4px rgba(0,0,0,.3);
+  --sh-l: 0 6px 20px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+
+*,*::before,*::after{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{
+  font-family:'Heebo',system-ui,sans-serif;
+  background:var(--bg);color:var(--fg);
+  direction:rtl;font-size:15px;line-height:1.5;
+}
+#root{display:flex;flex-direction:column;min-height:100%;}
+
+/* ── topbar ── */
+.tb{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:100;
+  background:var(--navy);color:#fff;
+  height:var(--topH);display:flex;align-items:center;
+  padding:0 14px;gap:10px;box-shadow:var(--sh-l);
+}
+.tb-title{font-size:1.1rem;font-weight:800;flex:1;letter-spacing:-.01em;}
+.tb-back{
+  background:rgba(255,255,255,.16);border:none;color:#fff;
+  padding:5px 11px;border-radius:8px;cursor:pointer;font-size:13px;
+  font-family:inherit;font-weight:600;
+}
+.tb-back:hover{background:rgba(255,255,255,.26);}
+.tb-chip{
+  background:var(--err);color:#fff;border-radius:20px;
+  padding:2px 9px;font-size:12px;font-weight:700;white-space:nowrap;
+}
+
+/* ── bottom nav ── */
+.bn{
+  position:sticky;bottom:0;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  background:var(--surface);border-top:1px solid var(--br);
+  display:flex;z-index:100;
+}
+.bn-b{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;
+  padding:9px 4px;border:none;background:none;color:var(--fg-m);
+  font-size:11px;font-family:inherit;cursor:pointer;transition:color .12s;
+}
+.bn-b.on{color:var(--navy);}
+.bn-b svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.9;}
+
+/* ── main ── */
+main{
+  flex:1;padding:14px;
+  padding-bottom:calc(var(--botH)+14px);
+  max-width:860px;margin:0 auto;width:100%;
+}
+
+/* ── section heading ── */
+.sh{font-size:1rem;font-weight:700;margin:0 0 12px;}
+
+/* ── store grid ── */
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+.sc{
+  background:var(--surface);border-radius:var(--r);box-shadow:var(--sh);
+  padding:18px 14px;cursor:pointer;
+  transition:transform .13s,box-shadow .13s;
+  border:2.5px solid transparent;
+  display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center;
+}
+.sc:hover{transform:translateY(-2px);box-shadow:var(--sh-l);}
+.sc:active{transform:none;}
+.sc-em{font-size:2rem;line-height:1;}
+.sc-name{font-size:.95rem;font-weight:700;}
+.sc-debt{font-size:1rem;font-weight:800;font-variant-numeric:tabular-nums;}
+.sc-pend{font-size:11px;color:var(--fg-m);}
+
+/* ── alert banner ── */
+.alert{
+  border-radius:var(--rs);padding:11px 14px;margin-bottom:14px;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+.alert-err{background:var(--err-l);color:var(--err);border:1px solid currentColor;}
+.alert-ok{background:var(--ok-l);color:var(--ok);border:1px solid currentColor;}
+.alert-lbl{font-weight:700;}
+.alert-val{font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;}
+
+/* ── stats row ── */
+.sr{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;margin-bottom:14px;}
+.sk{background:var(--surface);border-radius:var(--rs);padding:11px 13px;box-shadow:var(--sh);}
+.sk-l{font-size:11.5px;color:var(--fg-m);margin-bottom:1px;}
+.sk-v{font-size:1.15rem;font-weight:800;font-variant-numeric:tabular-nums;}
+
+/* ── btn ── */
+.btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:8px 15px;border-radius:var(--rs);border:none;
+  cursor:pointer;font-family:inherit;font-size:14px;font-weight:700;
+  transition:opacity .12s;white-space:nowrap;
+}
+.btn:hover{opacity:.84;}
+.btn:active{opacity:.68;}
+.btn-navy{background:var(--navy);color:#fff;}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-ok{background:var(--ok);color:#fff;}
+.btn-err{background:var(--err);color:#fff;}
+.btn-ghost{background:transparent;border:1.5px solid var(--br);color:var(--fg);}
+.btn-sm{padding:5px 10px;font-size:13px;}
+.btn-full{width:100%;justify-content:center;}
+
+/* ── tabs ── */
+.tabs{display:flex;gap:3px;background:var(--sf2);border-radius:var(--rs);padding:3px;margin-bottom:14px;}
+.tab{
+  flex:1;padding:7px 8px;border:none;border-radius:7px;
+  background:none;color:var(--fg-m);font-family:inherit;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all .12s;
+}
+.tab.on{background:var(--surface);color:var(--fg);box-shadow:var(--sh);}
+
+/* ── purchase card ── */
+.pl{display:flex;flex-direction:column;gap:9px;}
+.pc{
+  background:var(--surface);border-radius:var(--rs);box-shadow:var(--sh);
+  padding:13px;display:grid;grid-template-columns:1fr auto;gap:3px 10px;
+  border-right:4px solid var(--br);
+}
+.pc-name{font-weight:700;font-size:.95rem;}
+.pc-meta{font-size:12.5px;color:var(--fg-m);}
+.pc-note{font-size:12px;color:var(--fg-m);font-style:italic;margin-top:2px;}
+.pc-amt{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums;text-align:left;}
+.pc-acts{display:flex;gap:5px;margin-top:8px;grid-column:1/-1;flex-wrap:wrap;}
+
+/* ── badge ── */
+.bdg{
+  display:inline-flex;align-items:center;
+  padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:700;
+}
+.bdg-ok{background:var(--ok-l);color:var(--ok);}
+.bdg-err{background:var(--err-l);color:var(--err);}
+.bdg-warn{background:var(--warn-l);color:var(--warn);}
+
+/* ── modal ── */
+.ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.52);
+  display:flex;align-items:flex-end;justify-content:center;z-index:200;
+}
+@media(min-width:540px){.ov{align-items:center;padding:16px;}}
+.mo{
+  background:var(--surface);
+  border-radius:var(--r) var(--r) 0 0;
+  padding:18px 14px 26px;width:100%;max-width:480px;
+  max-height:90vh;overflow-y:auto;
+}
+@media(min-width:540px){.mo{border-radius:var(--r);}}
+.mo-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.mo-tl{font-size:1.05rem;font-weight:800;}
+.mo-x{
+  background:var(--sf2);border:none;border-radius:50%;
+  width:30px;height:30px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--fg-m);font-size:17px;
+}
+
+/* ── form ── */
+.fg{margin-bottom:12px;}
+.fl{display:block;font-size:12.5px;font-weight:700;margin-bottom:4px;color:var(--fg-m);}
+.fi,.fs,.ft{
+  width:100%;padding:9px 11px;border-radius:var(--rs);
+  border:1.5px solid var(--br);background:var(--sf2);
+  color:var(--fg);font-family:inherit;font-size:14.5px;
+  transition:border-color .12s;direction:rtl;
+}
+.fi:focus,.fs:focus,.ft:focus{outline:none;border-color:var(--navy);}
+.ft{min-height:64px;resize:vertical;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.fc{display:flex;align-items:center;gap:7px;cursor:pointer;}
+.fc input{width:17px;height:17px;cursor:pointer;accent-color:var(--navy);}
+.totbox{
+  padding:9px 11px;background:var(--sf2);border-radius:var(--rs);
+  border:1.5px solid var(--br);font-weight:800;font-size:1.05rem;
+  font-variant-numeric:tabular-nums;color:var(--navy);
+}
+
+/* ── payment history rows ── */
+.ph-row{
+  background:var(--surface);border-radius:var(--rs);padding:11px 13px;
+  box-shadow:var(--sh);margin-bottom:7px;
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+}
+.ph-info{flex:1;}
+.ph-dt{font-weight:600;font-size:13.5px;}
+.ph-note{font-size:12.5px;color:var(--fg-m);}
+.ph-amt{font-size:1.05rem;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums;}
+
+/* ── admin list items ── */
+.li{
+  background:var(--surface);border-radius:var(--rs);padding:11px 13px;
+  box-shadow:var(--sh);display:flex;align-items:center;gap:9px;margin-bottom:8px;
+}
+.li-main{flex:1;min-width:0;}
+.li-name{font-weight:700;font-size:.9rem;}
+.li-sub{font-size:12px;color:var(--fg-m);}
+.li-acts{display:flex;gap:5px;}
+
+/* ── debt cards ── */
+.dc{background:var(--surface);border-radius:var(--rs);padding:13px;box-shadow:var(--sh);margin-bottom:9px;}
+.dc-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
+.dc-name{font-weight:800;font-size:.95rem;}
+.dc-sub{font-size:12px;color:var(--fg-m);}
+.dc-it{display:flex;justify-content:space-between;font-size:12.5px;color:var(--fg-m);padding:4px 0;border-bottom:1px solid var(--br);}
+.dc-it:last-child{border:none;}
+.dc-itn{font-variant-numeric:tabular-nums;color:var(--err);font-weight:700;}
+
+/* ── color / emoji pickers ── */
+.csw{display:flex;flex-wrap:wrap;gap:7px;}
+.csw-c{width:26px;height:26px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .1s;}
+.csw-c.on{border-color:var(--fg);transform:scale(1.18);}
+.egr{display:flex;flex-wrap:wrap;gap:6px;}
+.eo{font-size:1.5rem;cursor:pointer;padding:3px;border-radius:7px;border:2px solid transparent;}
+.eo.on{border-color:var(--navy);background:var(--sf2);}
+.eo:hover{background:var(--sf2);}
+
+/* ── divider ── */
+hr.dv{border:none;border-top:1px solid var(--br);margin:14px 0;}
+
+/* ── empty ── */
+.empty{text-align:center;padding:44px 16px;color:var(--fg-m);}
+.empty-i{font-size:2.6rem;margin-bottom:7px;}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+// ── utils ──────────────────────────────────────────────────────────────
+const LS = {
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+const uid=()=>Math.random().toString(36).slice(2,10);
+const fmt=n=>'₪'+Number(n).toLocaleString('he-IL',{minimumFractionDigits:0,maximumFractionDigits:2});
+const fmtD=iso=>{
+  const d=new Date(iso);
+  return d.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'2-digit'})+
+    ' '+d.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+};
+
+// ── seed data ──────────────────────────────────────────────────────────
+const SEED_STORES=[
+  {id:'s1',name:'מאפיה',emoji:'🥐',color:'#c0392b'},
+  {id:'s2',name:'מכולת',emoji:'🛒',color:'#27ae60'},
+  {id:'s3',name:'ספרייה',emoji:'📚',color:'#2980b9'},
+  {id:'s4',name:'פיצרייה',emoji:'🍕',color:'#e67e22'},
+];
+const SEED_PRODS=[
+  {id:'p1',storeId:'s1',name:'לחם',price:8},
+  {id:'p2',storeId:'s1',name:'פיתה',price:5},
+  {id:'p3',storeId:'s1',name:'עוגה',price:22},
+  {id:'p4',storeId:'s2',name:'שתייה',price:7},
+  {id:'p5',storeId:'s2',name:'חטיף',price:8},
+  {id:'p6',storeId:'s3',name:'ספר לימוד',price:45},
+  {id:'p7',storeId:'s3',name:'מחברת',price:12},
+  {id:'p8',storeId:'s4',name:'פיצה פרוסה',price:14},
+  {id:'p9',storeId:'s4',name:'פיצה שלמה',price:65},
+];
+const SEED_PUR=[
+  {id:'u1',storeId:'s1',productId:'p1',studentName:'יוסי כהן',cls:'שיעור א׳',phone:'050-1234567',qty:3,price:8,total:24,paid:false,paidAmt:0,date:new Date(Date.now()-172800000).toISOString(),notes:''},
+  {id:'u2',storeId:'s4',productId:'p8',studentName:'משה לוי',cls:'שיעור ב׳',phone:'052-7654321',qty:2,price:14,total:28,paid:true,paidAmt:28,date:new Date(Date.now()-86400000).toISOString(),notes:''},
+  {id:'u3',storeId:'s2',productId:'p4',studentName:'אברהם גולדשטיין',cls:'שיעור א׳',phone:'',qty:5,price:7,total:35,paid:false,paidAmt:15,date:new Date(Date.now()-3600000).toISOString(),notes:'שילם חלק'},
+  {id:'u4',storeId:'s1',productId:'p3',studentName:'דוד רוזנברג',cls:'שיעור ג׳',phone:'053-1112233',qty:1,price:22,total:22,paid:false,paidAmt:0,date:new Date().toISOString(),notes:''},
+];
+
+// ── Modal ──────────────────────────────────────────────────────────────
+function Modal({title,onClose,children}){
+  useEffect(()=>{
+    const h=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',h);
+    return()=>window.removeEventListener('keydown',h);
+  },[onClose]);
+  return(
+    <div className="ov" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="mo">
+        <div className="mo-hd">
+          <span className="mo-tl">{title}</span>
+          <button className="mo-x" onClick={onClose}>×</button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ── PurchaseModal ──────────────────────────────────────────────────────
+function PurchaseModal({store,products,initial,onSave,onClose}){
+  const[f,setF]=useState({
+    studentName:initial?.studentName??'',
+    cls:initial?.cls??'',
+    phone:initial?.phone??'',
+    productId:initial?.productId??(products[0]?.id??''),
+    qty:initial?.qty??1,
+    paid:initial?.paid??false,
+    paidAmt:initial?.paidAmt??0,
+    notes:initial?.notes??'',
+  });
+  const s=(k,v)=>setF(p=>({...p,[k]:v}));
+  const prod=products.find(p=>p.id===f.productId);
+  const total=(prod?.price??0)*f.qty;
+
+  const submit=()=>{
+    if(!f.studentName.trim()||!f.productId)return;
+    onSave({...f,price:prod?.price??0,total,paidAmt:f.paid?total:Math.min(total,Number(f.paidAmt))});
+  };
+
+  return(
+    <Modal title={initial?'עריכת רכישה':`הוספת רכישה — ${store?.name??''}`} onClose={onClose}>
+      <div className="fg">
+        <label className="fl">שם הבחור *</label>
+        <input className="fi" value={f.studentName} onChange={e=>s('studentName',e.target.value)} placeholder="שם מלא" autoFocus/>
+      </div>
+      <div className="fr">
+        <div className="fg">
+          <label className="fl">שיעור</label>
+          <input className="fi" value={f.cls} onChange={e=>s('cls',e.target.value)} placeholder="שיעור א׳"/>
+        </div>
+        <div className="fg">
+          <label className="fl">טלפון</label>
+          <input className="fi" type="tel" value={f.phone} onChange={e=>s('phone',e.target.value)} placeholder="050-..." dir="ltr"/>
+        </div>
+      </div>
+      <div className="fg">
+        <label className="fl">מוצר / תלוש *</label>
+        {products.length===0?(
+          <div style={{color:'var(--err)',fontSize:13}}>אין מוצרים לחנות זו. הוסף מוצרים בפאנל הניהול.</div>
+        ):(
+          <select className="fs" value={f.productId} onChange={e=>s('productId',e.target.value)}>
+            {products.map(p=><option key={p.id} value={p.id}>{p.name} — {fmt(p.price)}</option>)}
+          </select>
+        )}
+      </div>
+      <div className="fr">
+        <div className="fg">
+          <label className="fl">כמות</label>
+          <input className="fi" type="number" min={1} value={f.qty} onChange={e=>s('qty',Math.max(1,Number(e.target.value)))}/>
+        </div>
+        <div className="fg">
+          <label className="fl">סה"כ</label>
+          <div className="totbox">{fmt(total)}</div>
+        </div>
+      </div>
+      <div className="fg">
+        <label className="fc">
+          <input type="checkbox" checked={f.paid} onChange={e=>s('paid',e.target.checked)}/>
+          <span>שולם במלואו</span>
+        </label>
+      </div>
+      {!f.paid&&(
+        <div className="fg">
+          <label className="fl">סכום ששולם (חלקי)</label>
+          <input className="fi" type="number" min={0} max={total} value={f.paidAmt} onChange={e=>s('paidAmt',e.target.value)} dir="ltr"/>
+        </div>
+      )}
+      <div className="fg">
+        <label className="fl">הערות</label>
+        <textarea className="ft" value={f.notes} onChange={e=>s('notes',e.target.value)} placeholder="הערה..."/>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-navy" style={{flex:1}} onClick={submit} disabled={!f.studentName.trim()||!f.productId}>
+          {initial?'שמור שינויים':'הוסף רכישה'}
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── MarkPaidModal ──────────────────────────────────────────────────────
+function MarkPaidModal({pur,onSave,onClose}){
+  const rem=pur.total-pur.paidAmt;
+  const[partial,setPartial]=useState(false);
+  const[amt,setAmt]=useState(rem);
+  return(
+    <Modal title="סימון תשלום" onClose={onClose}>
+      <div style={{background:'var(--sf2)',borderRadius:'var(--rs)',padding:'10px 12px',marginBottom:12}}>
+        <div style={{fontWeight:700}}>{pur.studentName}</div>
+        <div style={{fontSize:13,color:'var(--fg-m)'}}>
+          סה"כ: {fmt(pur.total)} · שולם: {fmt(pur.paidAmt)} · <span style={{color:'var(--err)',fontWeight:700}}>נותר: {fmt(rem)}</span>
+        </div>
+      </div>
+      <div className="fg">
+        <label className="fc">
+          <input type="checkbox" checked={!partial} onChange={e=>setPartial(!e.target.checked)}/>
+          <span>שולם במלואו ({fmt(rem)})</span>
+        </label>
+      </div>
+      {partial&&(
+        <div className="fg">
+          <label className="fl">סכום ששולם עכשיו</label>
+          <input className="fi" type="number" min={0} max={rem} value={amt} onChange={e=>setAmt(Number(e.target.value))} dir="ltr"/>
+        </div>
+      )}
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-ok" style={{flex:1}} onClick={()=>onSave(partial?pur.paidAmt+Number(amt):pur.total)}>
+          ✓ אישור תשלום
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── PaymentModal (payment to store) ──────────────────────────────────
+function PaymentModal({store,onSave,onClose}){
+  const[amt,setAmt]=useState('');
+  const[notes,setNotes]=useState('');
+  return(
+    <Modal title={`העברת תשלום — ${store?.name??''}`} onClose={onClose}>
+      <div className="alert alert-ok" style={{marginBottom:12}}>
+        <span>✓ הרשומה תישמר עם תאריך ושעה בהיסטוריית התשלומים</span>
+      </div>
+      <div className="fg">
+        <label className="fl">סכום שהועבר לחנות (₪) *</label>
+        <input className="fi" type="number" min={0} step={1} value={amt} onChange={e=>setAmt(e.target.value)} placeholder="0" dir="ltr" autoFocus/>
+      </div>
+      <div className="fg">
+        <label className="fl">הערות</label>
+        <textarea className="ft" value={notes} onChange={e=>setNotes(e.target.value)} placeholder="פרטים נוספים..."/>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-ok" style={{flex:1}} onClick={()=>{if(amt&&Number(amt)>0)onSave({amount:Number(amt),notes});}} disabled={!amt||Number(amt)<=0}>
+          ✓ אשר העברה
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── StoreModal ─────────────────────────────────────────────────────────
+const PALETTE=['#c0392b','#e67e22','#f39c12','#16a085','#27ae60','#2980b9','#1a5276','#8e44ad','#e91e63','#795548','#546e7a','#00796b'];
+const EMOJIS=['🏪','🥐','🍕','☕','🛒','📚','🍎','🥛','🍔','🎒','📦','💊','🧴','🧃','🍰','🥗','🍱','✂️','💈','🎨'];
+
+function StoreModal({initial,onSave,onClose}){
+  const[name,setName]=useState(initial?.name??'');
+  const[emoji,setEmoji]=useState(initial?.emoji??'🏪');
+  const[color,setColor]=useState(initial?.color??'#2980b9');
+  return(
+    <Modal title={initial?'עריכת חנות':'הוספת חנות'} onClose={onClose}>
+      <div className="fg">
+        <label className="fl">שם החנות *</label>
+        <input className="fi" value={name} onChange={e=>setName(e.target.value)} placeholder="שם החנות" autoFocus/>
+      </div>
+      <div className="fg">
+        <label className="fl">אייקון</label>
+        <div className="egr">{EMOJIS.map(e=><span key={e} className={`eo${emoji===e?' on':''}`} onClick={()=>setEmoji(e)}>{e}</span>)}</div>
+      </div>
+      <div className="fg">
+        <label className="fl">צבע</label>
+        <div className="csw">{PALETTE.map(c=><div key={c} className={`csw-c${color===c?' on':''}`} style={{background:c}} onClick={()=>setColor(c)}/>)}</div>
+      </div>
+      <div style={{display:'flex',gap:8,marginTop:4}}>
+        <button className="btn btn-navy" style={{flex:1}} onClick={()=>{if(name.trim())onSave({name:name.trim(),emoji,color});}} disabled={!name.trim()}>
+          {initial?'שמור':'הוסף חנות'}
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── ProductModal ───────────────────────────────────────────────────────
+function ProductModal({stores,initial,onSave,onClose}){
+  const[name,setName]=useState(initial?.name??'');
+  const[price,setPrice]=useState(initial?.price??'');
+  const[storeId,setStoreId]=useState(initial?.storeId??(stores[0]?.id??''));
+  return(
+    <Modal title={initial?'עריכת מוצר':'הוספת מוצר / תלוש'} onClose={onClose}>
+      <div className="fg">
+        <label className="fl">חנות *</label>
+        <select className="fs" value={storeId} onChange={e=>setStoreId(e.target.value)}>
+          {stores.map(s=><option key={s.id} value={s.id}>{s.emoji} {s.name}</option>)}
+        </select>
+      </div>
+      <div className="fg">
+        <label className="fl">שם המוצר / תלוש *</label>
+        <input className="fi" value={name} onChange={e=>setName(e.target.value)} placeholder="פרוסת פיצה, לחם..." autoFocus/>
+      </div>
+      <div className="fg">
+        <label className="fl">מחיר (₪) *</label>
+        <input className="fi" type="number" min={0} step={0.5} value={price} onChange={e=>setPrice(e.target.value)} dir="ltr"/>
+      </div>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn btn-navy" style={{flex:1}} onClick={()=>{if(name.trim()&&Number(price)>0)onSave({name:name.trim(),price:Number(price),storeId});}} disabled={!name.trim()||Number(price)<=0}>
+          {initial?'שמור':'הוסף'}
+        </button>
+        <button className="btn btn-ghost" onClick={onClose}>ביטול</button>
+      </div>
+    </Modal>
+  );
+}
+
+// ── HomeView ───────────────────────────────────────────────────────────
+function HomeView({stores,purchases,storePayments,onStoreClick}){
+  const storeDebt=sid=>{
+    const tot=purchases.filter(p=>p.storeId===sid).reduce((s,p)=>s+p.total,0);
+    const paid=storePayments.filter(p=>p.storeId===sid).reduce((s,p)=>s+p.amount,0);
+    return tot-paid;
+  };
+  const pending=sid=>purchases.filter(p=>p.storeId===sid&&(!p.paid||p.paidAmt<p.total)).length;
+  const totalDebt=stores.reduce((s,st)=>s+Math.max(0,storeDebt(st.id)),0);
+
+  return(
+    <div>
+      {totalDebt>0&&<div className="alert alert-err"><span className="alert-lbl">סה"כ חוב ת"ת לחנויות</span><span className="alert-val">{fmt(totalDebt)}</span></div>}
+      <p className="sh">בחר חנות לצפייה / הוספת רכישה</p>
+      <div className="sg">
+        {stores.map(st=>{
+          const d=storeDebt(st.id);
+          const p=pending(st.id);
+          return(
+            <div key={st.id} className="sc" style={{borderColor:p>0?st.color:'transparent'}} onClick={()=>onStoreClick(st)}>
+              <div className="sc-em">{st.emoji}</div>
+              <div className="sc-name">{st.name}</div>
+              <div className="sc-debt" style={{color:d>0?'var(--err)':d<0?'var(--ok)':'var(--fg-m)'}}>
+                {d>0?`${fmt(d)} חוב`:d<0?`${fmt(-d)} זכות`:'✓ מאוזן'}
+              </div>
+              {p>0&&<div className="sc-pend">{p} ממתין{p>1?'ים':''}</div>}
+            </div>
+          );
+        })}
+        {stores.length===0&&(
+          <div style={{gridColumn:'1/-1'}}>
+            <div className="empty">
+              <div className="empty-i">🏪</div>
+              <div>אין חנויות עדיין.<br/>הוסף חנות בפאנל הניהול.</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── PurchaseList (with optional date grouping) ─────────────────────────
+function PurchaseList({items,prodMap,isUnpaid,grouped,onMarkPaid,onEdit,onDelete}){
+  const dayLabel=iso=>{
+    const d=new Date(iso);
+    const today=new Date();
+    const yest=new Date(today);yest.setDate(yest.getDate()-1);
+    const ds=s=>s.toDateString();
+    if(ds(d)===ds(today))return'היום';
+    if(ds(d)===ds(yest))return'אתמול';
+    return d.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+  };
+
+  // group by day when in history mode
+  const groups=useMemo(()=>{
+    if(!grouped)return[{label:null,items}];
+    const m={};
+    items.forEach(p=>{
+      const k=new Date(p.date).toDateString();
+      if(!m[k])m[k]={label:dayLabel(p.date),items:[]};
+      m[k].items.push(p);
+    });
+    return Object.values(m);
+  },[items,grouped]);
+
+  const Card=({p})=>{
+    const paid=!isUnpaid(p);
+    const partial=!paid&&p.paidAmt>0;
+    const rem=p.total-p.paidAmt;
+    const prn=prodMap[p.productId]?.name??'?';
+    const borderColor=paid?'var(--ok)':partial?'var(--warn)':'var(--err)';
+    return(
+      <div className="pc" style={{borderRightColor:borderColor}}>
+        <div>
+          <div className="pc-name">{p.studentName}</div>
+          <div className="pc-meta">
+            {p.cls&&<span>{p.cls} · </span>}
+            {prn} × {p.qty}
+            {p.phone&&<span> · {p.phone}</span>}
+          </div>
+          <div className="pc-meta" style={{fontSize:11.5}}>{fmtD(p.date)}</div>
+          {p.notes&&<div className="pc-note">{p.notes}</div>}
+        </div>
+        <div style={{textAlign:'left',minWidth:90}}>
+          <div className="pc-amt">{fmt(p.total)}</div>
+          {paid
+            ?<span className="bdg bdg-ok">✓ שולם</span>
+            :partial
+              ?<span className="bdg bdg-warn">נותר {fmt(rem)}</span>
+              :<span className="bdg bdg-err">לא שולם</span>
+          }
+        </div>
+        <div className="pc-acts">
+          {!paid&&<button className="btn btn-ok btn-sm" onClick={()=>onMarkPaid(p)}>סמן שולם</button>}
+          <button className="btn btn-ghost btn-sm" onClick={()=>onEdit(p)}>עריכה</button>
+          <button className="btn btn-err btn-sm" onClick={()=>onDelete(p.id)}>מחק</button>
+        </div>
+      </div>
+    );
+  };
+
+  return(
+    <div className="pl">
+      {groups.map((g,gi)=>(
+        <div key={gi}>
+          {g.label&&(
+            <div style={{fontSize:12.5,fontWeight:700,color:'var(--fg-m)',margin:'12px 0 6px',display:'flex',alignItems:'center',gap:8}}>
+              <span>{g.label}</span>
+              <span style={{flex:1,height:1,background:'var(--br)'}}/>
+              <span style={{fontVariantNumeric:'tabular-nums',fontWeight:400}}>{fmt(g.items.reduce((s,p)=>s+p.total,0))}</span>
+            </div>
+          )}
+          {g.items.map(p=><Card key={p.id} p={p}/>)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── StoreView ──────────────────────────────────────────────────────────
+function StoreView({store,products,purchases,storePayments,onAddPurchase,onEditPurchase,onDeletePurchase,onMarkPaid,onAddPayment}){
+  const[filter,setFilter]=useState('all');
+  const[confirm,setConfirm]=useState(null);
+  const[markPaid,setMarkPaid]=useState(null);
+
+  const tot=purchases.reduce((s,p)=>s+p.total,0);
+  const studentPaid=purchases.reduce((s,p)=>s+p.paidAmt,0);
+  const storePaidTotal=storePayments.reduce((s,p)=>s+p.amount,0);
+  const storeDebt=tot-storePaidTotal;
+
+  const prodMap=Object.fromEntries(products.map(p=>[p.id,p]));
+  const isUnpaid=p=>!p.paid||p.paidAmt<p.total;
+
+  const shown=purchases.filter(p=>{
+    if(filter==='unpaid')return isUnpaid(p);
+    if(filter==='paid')return!isUnpaid(p);
+    return true;
+  }).sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  return(
+    <div>
+      <div className="sr">
+        <div className="sk"><div className="sk-l">סה"כ רכישות</div><div className="sk-v">{fmt(tot)}</div></div>
+        <div className="sk"><div className="sk-l">שולם מבחורים</div><div className="sk-v" style={{color:'var(--ok)'}}>{fmt(studentPaid)}</div></div>
+        <div className="sk"><div className="sk-l">חוב ת"ת לחנות</div><div className="sk-v" style={{color:storeDebt>0?'var(--err)':'var(--ok)'}}>{fmt(Math.abs(storeDebt))}</div></div>
+        <div className="sk"><div className="sk-l">שולם לחנות</div><div className="sk-v" style={{color:'var(--ok)'}}>{fmt(storePaidTotal)}</div></div>
+      </div>
+
+      <div style={{display:'flex',gap:8,marginBottom:14,flexWrap:'wrap'}}>
+        <button className="btn btn-navy" onClick={onAddPurchase}>＋ הוסף רכישה</button>
+        <button className="btn btn-gold" onClick={onAddPayment}>↑ העברת תשלום לחנות</button>
+      </div>
+
+      <div className="tabs">
+        <button className={`tab${filter==='all'?' on':''}`} onClick={()=>setFilter('all')}>היסטוריה ({purchases.length})</button>
+        <button className={`tab${filter==='unpaid'?' on':''}`} onClick={()=>setFilter('unpaid')}>חוב ({purchases.filter(isUnpaid).length})</button>
+        <button className={`tab${filter==='paid'?' on':''}`} onClick={()=>setFilter('paid')}>שולם ({purchases.filter(p=>!isUnpaid(p)).length})</button>
+      </div>
+
+      {shown.length===0?(
+        <div className="empty"><div className="empty-i">📋</div><div>אין רכישות {filter!=='all'?'בקטגוריה זו':''}</div></div>
+      ):(
+        <PurchaseList items={shown} prodMap={prodMap} isUnpaid={isUnpaid} grouped={filter==='all'}
+          onMarkPaid={setMarkPaid} onEdit={onEditPurchase} onDelete={setConfirm}/>
+      )}
+
+      {storePayments.length>0&&(
+        <>
+          <hr className="dv"/>
+          <p className="sh">היסטוריית תשלומים לחנות</p>
+          {storePayments.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(p=>(
+            <div key={p.id} className="ph-row">
+              <div className="ph-info">
+                <div className="ph-dt">{fmtD(p.date)}</div>
+                {p.notes&&<div className="ph-note">{p.notes}</div>}
+              </div>
+              <div className="ph-amt">{fmt(p.amount)}</div>
+            </div>
+          ))}
+        </>
+      )}
+
+      {confirm&&(
+        <Modal title="מחיקת רכישה" onClose={()=>setConfirm(null)}>
+          <p style={{marginTop:0}}>האם למחוק את הרכישה? פעולה זו לא ניתנת לביטול.</p>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-err" style={{flex:1}} onClick={()=>{onDeletePurchase(confirm);setConfirm(null);}}>מחק</button>
+            <button className="btn btn-ghost" onClick={()=>setConfirm(null)}>ביטול</button>
+          </div>
+        </Modal>
+      )}
+      {markPaid&&(
+        <MarkPaidModal pur={markPaid} onSave={amt=>{onMarkPaid(markPaid.id,amt);setMarkPaid(null);}} onClose={()=>setMarkPaid(null)}/>
+      )}
+    </div>
+  );
+}
+
+// ── DebtsView ──────────────────────────────────────────────────────────
+function DebtsView({purchases,products,stores}){
+  const isUnpaid=p=>!p.paid||p.paidAmt<p.total;
+  const storeMap=Object.fromEntries(stores.map(s=>[s.id,s]));
+  const prodMap=Object.fromEntries(products.map(p=>[p.id,p]));
+
+  const byStudent=useMemo(()=>{
+    const m={};
+    purchases.filter(isUnpaid).forEach(p=>{
+      if(!m[p.studentName])m[p.studentName]={name:p.studentName,cls:p.cls,phone:p.phone,items:[],debt:0};
+      m[p.studentName].items.push(p);
+      m[p.studentName].debt+=p.total-p.paidAmt;
+    });
+    return Object.values(m).sort((a,b)=>b.debt-a.debt);
+  },[purchases]);
+
+  const totalDebt=byStudent.reduce((s,st)=>s+st.debt,0);
+
+  if(byStudent.length===0)return(
+    <div className="empty"><div className="empty-i">🎉</div><div>אין חובות פתוחים!</div></div>
+  );
+
+  return(
+    <div>
+      <div className="alert alert-err"><span className="alert-lbl">סה"כ חוב בחורים</span><span className="alert-val">{fmt(totalDebt)}</span></div>
+      {byStudent.map(st=>(
+        <div key={st.name} className="dc">
+          <div className="dc-hd">
+            <div>
+              <div className="dc-name">{st.name}</div>
+              {st.cls&&<div className="dc-sub">{st.cls}</div>}
+              {st.phone&&<div className="dc-sub">{st.phone}</div>}
+            </div>
+            <span className="bdg bdg-err" style={{fontSize:'1rem',padding:'4px 12px'}}>{fmt(st.debt)}</span>
+          </div>
+          <div>
+            {st.items.map(p=>{
+              const store=storeMap[p.storeId];
+              const prod=prodMap[p.productId];
+              return(
+                <div key={p.id} className="dc-it">
+                  <span>{store?.emoji} {store?.name} — {p.qty}× {prod?.name??'?'}</span>
+                  <span className="dc-itn">{fmt(p.total-p.paidAmt)}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── AdminView ──────────────────────────────────────────────────────────
+function AdminView({stores,products,storePayments,onAddStore,onEditStore,onDeleteStore,onAddProduct,onEditProduct,onDeleteProduct}){
+  const[tab,setTab]=useState('stores');
+  const[confirm,setConfirm]=useState(null);
+
+  const storeMap=Object.fromEntries(stores.map(s=>[s.id,s]));
+
+  return(
+    <div>
+      <div className="tabs">
+        <button className={`tab${tab==='stores'?' on':''}`} onClick={()=>setTab('stores')}>חנויות</button>
+        <button className={`tab${tab==='products'?' on':''}`} onClick={()=>setTab('products')}>מוצרים</button>
+        <button className={`tab${tab==='payments'?' on':''}`} onClick={()=>setTab('payments')}>היסטוריית תשלומים</button>
+      </div>
+
+      {tab==='stores'&&(
+        <>
+          <button className="btn btn-navy" style={{marginBottom:12}} onClick={onAddStore}>＋ הוסף חנות</button>
+          {stores.length===0&&<div className="empty"><div className="empty-i">🏪</div><div>אין חנויות עדיין</div></div>}
+          {stores.map(s=>(
+            <div key={s.id} className="li">
+              <div style={{fontSize:'1.6rem'}}>{s.emoji}</div>
+              <div style={{width:14,height:14,borderRadius:'50%',background:s.color,flexShrink:0}}/>
+              <div className="li-main"><div className="li-name">{s.name}</div></div>
+              <div className="li-acts">
+                <button className="btn btn-ghost btn-sm" onClick={()=>onEditStore(s)}>עריכה</button>
+                <button className="btn btn-err btn-sm" onClick={()=>setConfirm({type:'store',id:s.id,name:s.name})}>מחק</button>
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+
+      {tab==='products'&&(
+        <>
+          <button className="btn btn-navy" style={{marginBottom:12}} onClick={onAddProduct}>＋ הוסף מוצר</button>
+          {stores.map(s=>{
+            const prods=products.filter(p=>p.storeId===s.id);
+            if(!prods.length)return null;
+            return(
+              <div key={s.id} style={{marginBottom:16}}>
+                <div style={{fontWeight:700,fontSize:'.9rem',color:'var(--fg-m)',marginBottom:6}}>{s.emoji} {s.name}</div>
+                {prods.map(p=>(
+                  <div key={p.id} className="li">
+                    <div className="li-main">
+                      <div className="li-name">{p.name}</div>
+                      <div className="li-sub">{fmt(p.price)}</div>
+                    </div>
+                    <div className="li-acts">
+                      <button className="btn btn-ghost btn-sm" onClick={()=>onEditProduct(p)}>עריכה</button>
+                      <button className="btn btn-err btn-sm" onClick={()=>setConfirm({type:'product',id:p.id,name:p.name})}>מחק</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+          {products.length===0&&<div className="empty"><div className="empty-i">📦</div><div>אין מוצרים עדיין</div></div>}
+        </>
+      )}
+
+      {tab==='payments'&&(
+        <>
+          {storePayments.length===0&&<div className="empty"><div className="empty-i">💳</div><div>אין היסטוריית תשלומים</div></div>}
+          {storePayments.slice().sort((a,b)=>new Date(b.date)-new Date(a.date)).map(p=>{
+            const st=storeMap[p.storeId];
+            return(
+              <div key={p.id} className="ph-row">
+                <div className="ph-info">
+                  <div style={{fontWeight:700,marginBottom:1}}>{st?.emoji} {st?.name??'?'}</div>
+                  <div className="ph-dt">{fmtD(p.date)}</div>
+                  {p.notes&&<div className="ph-note">{p.notes}</div>}
+                </div>
+                <div className="ph-amt">{fmt(p.amount)}</div>
+              </div>
+            );
+          })}
+        </>
+      )}
+
+      {confirm&&(
+        <Modal title="אישור מחיקה" onClose={()=>setConfirm(null)}>
+          <p style={{marginTop:0}}>האם למחוק את "{confirm.name}"? פעולה זו תמחק גם את כל הנתונים הקשורים.</p>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-err" style={{flex:1}} onClick={()=>{
+              if(confirm.type==='store')onDeleteStore(confirm.id);
+              else onDeleteProduct(confirm.id);
+              setConfirm(null);
+            }}>מחק</button>
+            <button className="btn btn-ghost" onClick={()=>setConfirm(null)}>ביטול</button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ── AdminLock ──────────────────────────────────────────────────────────
+const ADMIN_PASS='1234'; // ← שנה כאן את הסיסמה
+
+function AdminLock({onUnlock,onBack}){
+  const[pass,setPass]=useState('');
+  const[err,setErr]=useState(false);
+  const[shake,setShake]=useState(false);
+
+  const tryPass=()=>{
+    if(pass===ADMIN_PASS){onUnlock();}
+    else{
+      setErr(true);setPass('');setShake(true);
+      setTimeout(()=>setShake(false),500);
+    }
+  };
+
+  return(
+    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:'60vh',gap:20}}>
+      <div style={{fontSize:'3rem'}}>🔒</div>
+      <div style={{fontWeight:800,fontSize:'1.2rem'}}>פאנל ניהול</div>
+      <div style={{fontSize:14,color:'var(--fg-m)'}}>הזן סיסמת מנהל</div>
+      <div style={{
+        animation:shake?'shake .4s ease':'none',
+        width:'100%',maxWidth:280,
+      }}>
+        <input
+          className="fi"
+          type="password"
+          value={pass}
+          onChange={e=>{setPass(e.target.value);setErr(false);}}
+          onKeyDown={e=>e.key==='Enter'&&tryPass()}
+          placeholder="••••"
+          autoFocus
+          style={{
+            textAlign:'center',fontSize:'1.4rem',letterSpacing:6,
+            borderColor:err?'var(--err)':'var(--br)',
+          }}
+        />
+        {err&&<div style={{color:'var(--err)',fontSize:13,textAlign:'center',marginTop:5}}>סיסמה שגויה</div>}
+      </div>
+      <div style={{display:'flex',gap:10,width:'100%',maxWidth:280}}>
+        <button className="btn btn-navy btn-full" onClick={tryPass}>כניסה</button>
+        <button className="btn btn-ghost" onClick={onBack}>ביטול</button>
+      </div>
+      <style>{`@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}`}</style>
+    </div>
+  );
+}
+
+// ── Nav icons ──────────────────────────────────────────────────────────
+const IcoHome=()=><svg viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V21H15v-5h-6v5H3z"/></svg>;
+const IcoDebt=()=><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>;
+const IcoAdmin=()=><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zM12 6v6l4 2"/><path d="M4 6h16M4 18h16"/></svg>;
+
+// ── App ────────────────────────────────────────────────────────────────
+function App(){
+  const[stores,setStores]=useState(()=>LS.get('stores',SEED_STORES));
+  const[products,setProducts]=useState(()=>LS.get('products',SEED_PRODS));
+  const[purchases,setPurchases]=useState(()=>LS.get('purchases',SEED_PUR));
+  const[storePayments,setStorePayments]=useState(()=>LS.get('storePayments',[]));
+
+  const[view,setView]=useState('home');
+  const[activeStore,setActiveStore]=useState(null);
+  const[modal,setModal]=useState(null);
+  const[editTarget,setEditTarget]=useState(null);
+  const[adminUnlocked,setAdminUnlocked]=useState(false);
+
+  useEffect(()=>LS.set('stores',stores),[stores]);
+  useEffect(()=>LS.set('products',products),[products]);
+  useEffect(()=>LS.set('purchases',purchases),[purchases]);
+  useEffect(()=>LS.set('storePayments',storePayments),[storePayments]);
+
+  // ── actions ──
+  const addPurchase=d=>setPurchases(p=>[{...d,id:uid(),date:new Date().toISOString()},...p]);
+  const updPurchase=(id,d)=>setPurchases(p=>p.map(x=>x.id===id?{...x,...d}:x));
+  const delPurchase=id=>setPurchases(p=>p.filter(x=>x.id!==id));
+  const markPaid=(id,amt)=>setPurchases(p=>p.map(x=>x.id===id?{...x,paid:amt>=x.total,paidAmt:amt}:x));
+
+  const addStore=d=>setStores(p=>[...p,{...d,id:uid()}]);
+  const updStore=(id,d)=>setStores(p=>p.map(x=>x.id===id?{...x,...d}:x));
+  const delStore=id=>{
+    setStores(p=>p.filter(x=>x.id!==id));
+    setProducts(p=>p.filter(x=>x.storeId!==id));
+    setPurchases(p=>p.filter(x=>x.storeId!==id));
+    setStorePayments(p=>p.filter(x=>x.storeId!==id));
+  };
+
+  const addProduct=d=>setProducts(p=>[...p,{...d,id:uid()}]);
+  const updProduct=(id,d)=>setProducts(p=>p.map(x=>x.id===id?{...x,...d}:x));
+  const delProduct=id=>setProducts(p=>p.filter(x=>x.id!==id));
+
+  const addStorePayment=d=>setStorePayments(p=>[{...d,id:uid(),date:new Date().toISOString()},...p]);
+
+  // ── nav ──
+  const goStore=s=>{setActiveStore(s);setView('store');};
+  const goHome=()=>{setView('home');setActiveStore(null);setAdminUnlocked(false);};
+
+  // total debt for topbar badge
+  const totalDebt=stores.reduce((s,st)=>{
+    const tot=purchases.filter(p=>p.storeId===st.id).reduce((a,p)=>a+p.total,0);
+    const paid=storePayments.filter(p=>p.storeId===st.id).reduce((a,p)=>a+p.amount,0);
+    return s+Math.max(0,tot-paid);
+  },0);
+
+  // title per view
+  const titles={home:'תלושים — ניהול ת"ת',store:activeStore?`${activeStore.emoji} ${activeStore.name}`:'',debts:'חובות בחורים',admin:'פאנל ניהול'};
+
+  const closeModal=()=>{setModal(null);setEditTarget(null);};
+
+  return(
+    <div id="root-inner">
+      {/* Top bar */}
+      <div className="tb">
+        {view!=='home'&&<button className="tb-back" onClick={goHome}>→ ראשי</button>}
+        <div className="tb-title">{titles[view]||'תלושים'}</div>
+        {totalDebt>0&&<div className="tb-chip">{fmt(totalDebt)}</div>}
+      </div>
+
+      <main>
+        {view==='home'&&<HomeView stores={stores} purchases={purchases} storePayments={storePayments} onStoreClick={goStore}/>}
+        {view==='store'&&activeStore&&(
+          <StoreView
+            store={activeStore}
+            products={products.filter(p=>p.storeId===activeStore.id)}
+            purchases={purchases.filter(p=>p.storeId===activeStore.id)}
+            storePayments={storePayments.filter(p=>p.storeId===activeStore.id)}
+            onAddPurchase={()=>setModal('purchase')}
+            onEditPurchase={p=>{setEditTarget(p);setModal('editPurchase');}}
+            onDeletePurchase={delPurchase}
+            onMarkPaid={markPaid}
+            onAddPayment={()=>setModal('payment')}
+          />
+        )}
+        {view==='debts'&&<DebtsView purchases={purchases} products={products} stores={stores}/>}
+        {view==='admin'&&(
+          adminUnlocked
+            ?<AdminView
+                stores={stores} products={products} storePayments={storePayments}
+                onAddStore={()=>setModal('addStore')}
+                onEditStore={s=>{setEditTarget(s);setModal('editStore');}}
+                onDeleteStore={delStore}
+                onAddProduct={()=>setModal('addProduct')}
+                onEditProduct={p=>{setEditTarget(p);setModal('editProduct');}}
+                onDeleteProduct={delProduct}
+              />
+            :<AdminLock onUnlock={()=>setAdminUnlocked(true)} onBack={goHome}/>
+        )}
+      </main>
+
+      {/* Bottom nav */}
+      <div className="bn">
+        <button className={`bn-b${view==='home'?' on':''}`} onClick={goHome}>
+          <IcoHome/><span>ראשי</span>
+        </button>
+        <button className={`bn-b${view==='debts'?' on':''}`} onClick={()=>setView('debts')}>
+          <IcoDebt/><span>חובות</span>
+        </button>
+        <button className={`bn-b${view==='admin'?' on':''}`} onClick={()=>setView('admin')}>
+          <IcoAdmin/><span>ניהול</span>
+        </button>
+      </div>
+
+      {/* Modals */}
+      {modal==='purchase'&&activeStore&&(
+        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)}
+          onSave={d=>{addPurchase({...d,storeId:activeStore.id});closeModal();}} onClose={closeModal}/>
+      )}
+      {modal==='editPurchase'&&editTarget&&activeStore&&(
+        <PurchaseModal store={activeStore} products={products.filter(p=>p.storeId===activeStore.id)}
+          initial={editTarget}
+          onSave={d=>{updPurchase(editTarget.id,d);closeModal();}} onClose={closeModal}/>
+      )}
+      {modal==='payment'&&activeStore&&(
+        <PaymentModal store={activeStore} onSave={d=>{addStorePayment({...d,storeId:activeStore.id});closeModal();}} onClose={closeModal}/>
+      )}
+      {modal==='addStore'&&<StoreModal onSave={d=>{addStore(d);closeModal();}} onClose={closeModal}/>}
+      {modal==='editStore'&&editTarget&&<StoreModal initial={editTarget} onSave={d=>{updStore(editTarget.id,d);closeModal();}} onClose={closeModal}/>}
+      {modal==='addProduct'&&<ProductModal stores={stores} onSave={d=>{addProduct(d);closeModal();}} onClose={closeModal}/>}
+      {modal==='editProduct'&&editTarget&&<ProductModal stores={stores} initial={editTarget} onSave={d=>{updProduct(editTarget.id,d);closeModal();}} onClose={closeModal}/>}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>

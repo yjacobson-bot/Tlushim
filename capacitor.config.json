@@ -1,0 +1,13 @@
+{
+  "appId": "com.tlushim.app",
+  "appName": "תלושים",
+  "webDir": "www",
+  "android": {
+    "minSdkVersion": 26
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  }
+}
